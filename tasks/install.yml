@@ -1,0 +1,57 @@
+---
+- name: Upload file
+  ansible.builtin.copy:
+    src: files/grafana-{{ version }}.linux-{{ arch }}.tar.gz
+    dest: /tmp
+    remote_src: false
+
+- name: Extract file
+  ansible.builtin.unarchive:
+    src: "/tmp/grafana-{{ version }}.linux-{{ arch }}.tar.gz"
+    dest: "{{ installation_directory }}"
+    creates: "{{ installation_directory }}/grafana-{{ version }}"
+    remote_src: true
+
+- name: Remove file
+  ansible.builtin.file:
+    path: "/tmp/grafana-{{ version }}.linux-{{ arch }}.tar.gz"
+    state: absent
+
+- name: Add group "grafana"
+  ansible.builtin.group:
+    name: grafana
+
+- name: Add user "grafana"
+  ansible.builtin.user:
+    name: grafana
+    group: grafana
+    create_home: false
+
+- name: Change ownership
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: grafana
+    group: grafana
+    recurse: true
+  with_items:
+    - "{{ installation_directory }}/grafana-{{ version }}"
+
+- name: Copy systemd file
+  ansible.builtin.template:
+    src: grafana-server.service
+    dest: /etc/systemd/system
+
+- name: Systemctl daemon-reload
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Restart grafana service
+  ansible.builtin.service:
+    name: grafana-server
+    state: restarted
+    enabled: true
+
+- name: Status grafana
+  ansible.builtin.service:
+    name: grafana-server
+    state: started

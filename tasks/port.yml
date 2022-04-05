@@ -1,0 +1,15 @@
+---
+# open port
+- name: Open port tcp 3000
+  ansible.builtin.command:
+    argv:
+      - firewall-cmd
+      - --add-port=3000/tcp
+      - --permanent
+      - --zone=public
+
+- name: Reload
+  ansible.builtin.command:
+    argv:
+      - firewall-cmd
+      - --reload

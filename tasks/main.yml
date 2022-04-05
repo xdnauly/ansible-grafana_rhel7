@@ -1,0 +1,4 @@
+---
+# tasks file for grafana
+- ansible.builtin.import_tasks: install.yml
+- ansible.builtin.import_tasks: port.yml

@@ -1,0 +1,5 @@
+---
+# vars file for grafana
+version: 8.4.5
+arch: amd64
+installation_directory: /usr/local/share
